@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">竖屏视频播放器</string>
+    
+    <!-- 主界面 -->
+    <string name="local_storage">本地存储</string>
+    <string name="network_storage">网络存储</string>
+    <string name="smb_server">SMB服务器</string>
+    <string name="webdav_server">WebDAV服务器</string>
+    <string name="settings">设置</string>
+    
+    <!-- 排序选项 -->
+    <string name="sort_by">排序方式</string>
+    <string name="sort_by_name_asc">文件名 (A-Z)</string>
+    <string name="sort_by_name_desc">文件名 (Z-A)</string>
+    <string name="sort_by_date">修改日期</string>
+    <string name="sort_by_number">数字递增</string>
+    
+    <!-- 视频播放 -->
+    <string name="auto_play_next">自动连续播放</string>
+    <string name="long_press_hint">长按屏幕进行2倍速播放</string>
+    
+    <!-- 服务器连接 -->
+    <string name="server_address">服务器地址</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="connect">连接</string>
+    <string name="disconnect">断开连接</string>
+    
+    <!-- 错误信息 -->
+    <string name="connection_error">连接错误</string>
+    <string name="file_not_found">文件未找到</string>
+    <string name="playback_error">播放错误</string>
+    
+    <!-- 其他 -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+</resources>
