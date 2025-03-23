@@ -3,7 +3,7 @@ name: Build and Release Android APK
 on:
   push:
     tags:
-      - 'v*'  # 每次打 tag，例如 v1.0.0 会触发构建
+      - 'v*'
 
 jobs:
   build:
@@ -20,19 +20,11 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
-    - name: List directory structure
-      run: |
-        ls -la
-        ls -la gradle || echo "gradle directory not found"
-        ls -la gradle/wrapper || echo "wrapper directory not found"
-
-    - name: Grant execute permissions
-      run: |
-        chmod +x ./gradlew
-        chmod -R 755 ./gradle/wrapper/
-
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      
     - name: Build APK
-      run: ./gradlew assembleRelease
+      run: gradle assembleRelease
 
     - name: Upload Release APK to GitHub Releases
       uses: softprops/action-gh-release@v1
