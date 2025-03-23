@@ -20,13 +20,12 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
-    - name: Grant execute permissions
-      run: |
-        chmod +x ./gradlew
-        chmod -R 755 ./gradle/wrapper/
-
+    # 使用官方的 Gradle Build Action
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      
     - name: List tasks
-      run: ./gradlew tasks
+      run: gradle tasks
 
     - name: List directory structure
       run: |
@@ -35,15 +34,15 @@ jobs:
 
     - name: Build APK
       run: |
-        # 尝试找到包含 build.gradle 或 build.gradle.kts 的正确目录
+        # 尝试找到正确的模块
         if [ -f "app/build.gradle" ] || [ -f "app/build.gradle.kts" ]; then
-          ./gradlew :app:assembleRelease
+          gradle :app:assembleRelease
         else
           # 尝试找到模块名称
           MODULE_NAME=$(find . -name "build.gradle" -o -name "build.gradle.kts" | grep -v "/build/" | head -1 | xargs dirname | xargs basename)
           if [ ! -z "$MODULE_NAME" ]; then
             echo "Found module: $MODULE_NAME"
-            ./gradlew :$MODULE_NAME:assembleRelease
+            gradle :$MODULE_NAME:assembleRelease
           else
             echo "Could not find any Android module"
             exit 1
