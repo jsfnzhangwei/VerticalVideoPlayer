@@ -20,17 +20,46 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
-      
+    - name: Grant execute permissions
+      run: |
+        chmod +x ./gradlew
+        chmod -R 755 ./gradle/wrapper/
+
+    - name: List tasks
+      run: ./gradlew tasks
+
+    - name: List directory structure
+      run: |
+        ls -la
+        find . -type d -not -path "*/\.*" | sort
+
     - name: Build APK
-      run: gradle assembleRelease
+      run: |
+        # 尝试找到包含 build.gradle 或 build.gradle.kts 的正确目录
+        if [ -f "app/build.gradle" ] || [ -f "app/build.gradle.kts" ]; then
+          ./gradlew :app:assembleRelease
+        else
+          # 尝试找到模块名称
+          MODULE_NAME=$(find . -name "build.gradle" -o -name "build.gradle.kts" | grep -v "/build/" | head -1 | xargs dirname | xargs basename)
+          if [ ! -z "$MODULE_NAME" ]; then
+            echo "Found module: $MODULE_NAME"
+            ./gradlew :$MODULE_NAME:assembleRelease
+          else
+            echo "Could not find any Android module"
+            exit 1
+          fi
+        fi
+
+    - name: Find APK files
+      run: find . -name "*.apk"
 
     - name: Upload Release APK to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
         name: Release ${{ github.ref_name }}
         tag_name: ${{ github.ref_name }}
-        files: app/build/outputs/apk/release/*.apk
+        files: |
+          **/build/outputs/apk/**/release/*.apk
+          app/build/outputs/apk/release/*.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
