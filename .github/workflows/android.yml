@@ -23,60 +23,48 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       
-    - name: List projects
-      run: gradle projects
-      
-    - name: List tasks
-      run: gradle tasks
+    - name: Check Gradle settings
+      run: |
+        echo "Checking settings.gradle:"
+        if [ -f "settings.gradle" ]; then
+          cat settings.gradle
+        elif [ -f "settings.gradle.kts" ]; then
+          cat settings.gradle.kts
+        else
+          echo "No settings.gradle file found"
+        fi
+        
+        echo "\nChecking root build.gradle:"
+        if [ -f "build.gradle" ]; then
+          cat build.gradle
+        elif [ -f "build.gradle.kts" ]; then
+          cat build.gradle.kts
+        else
+          echo "No root build.gradle file found"
+        fi
+        
+        echo "\nChecking app/build.gradle:"
+        if [ -f "app/build.gradle" ]; then
+          cat app/build.gradle
+        elif [ -f "app/build.gradle.kts" ]; then
+          cat app/build.gradle.kts
+        else
+          echo "No app/build.gradle file found"
+        fi
 
     - name: List directory structure
       run: |
         echo "Root directory contents:"
         ls -la
+        echo "\napp directory contents (if exists):"
+        ls -la app || echo "app directory not found"
         echo "\nAll build.gradle files:"
         find . -name "build.gradle" -o -name "build.gradle.kts" | grep -v "/build/"
-        echo "\nDirectory structure:"
-        find . -type d -not -path "*/\.*" | sort
 
-    - name: Build APK
+    - name: Try direct build
       run: |
-        # 查找所有的 build.gradle 文件
-        BUILD_FILES=$(find . -name "build.gradle" -o -name "build.gradle.kts" | grep -v "/build/")
-        
-        # 查找包含 android 插件的 build.gradle 文件
-        for file in $BUILD_FILES; do
-          if grep -q "com.android.application" "$file"; then
-            DIR=$(dirname "$file")
-            MODULE_NAME=$(basename "$DIR")
-            REL_PATH=${DIR#./}
-            echo "Found Android application module at: $REL_PATH"
-            
-            # 如果是根目录
-            if [ "$REL_PATH" = "." ]; then
-              echo "Building root project"
-              gradle assembleRelease
-            else
-              # 计算模块路径
-              MODULE_PATH=${REL_PATH//\//:}
-              echo "Building module: $MODULE_PATH"
-              gradle :$MODULE_PATH:assembleRelease
-            fi
-            
-            # 退出循环，我们找到了需要构建的模块
-            exit_code=$?
-            if [ $exit_code -eq 0 ]; then
-              break
-            else
-              echo "Build failed for $MODULE_PATH, trying another module if available"
-            fi
-          fi
-        done
-        
-        # 如果没有找到 Android 应用模块，尝试构建根项目
-        if [ -z "$MODULE_NAME" ]; then
-          echo "No Android application module found, trying to build root project"
-          gradle assembleRelease
-        fi
+        echo "Trying to build the project directly..."
+        gradle assembleRelease
 
     - name: Find APK files
       run: |
